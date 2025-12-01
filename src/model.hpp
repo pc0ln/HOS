@@ -20,6 +20,16 @@ struct Staff {
     std::vector<Availability> availability;
 };
 
+struct Shifts {
+    // Identifiers
+    std::string id;
+    std::string name;
+    std::string req_role;
+    short required_count = 1; // default  
+};
+
+
+
 struct Rules {
     // shorts to save some memory since doesnt exceed 32k
     short max_hours_per_week_default = 40; // default weekly hour limit
