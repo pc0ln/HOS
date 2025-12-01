@@ -1,7 +1,10 @@
 
+#include "input_parser.hpp"
 #include "../extern/json.hpp" // Using json header from nlohmann/json
 
+using nlohmann::json;
 
-int main() {
-    return 0;
+// Need to make model.
+InputModel parse_input_json(const std::string& text, const Filters& opt) {
+
 }
