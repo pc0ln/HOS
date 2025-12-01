@@ -28,7 +28,15 @@ struct Shifts {
     short required_count = 1; // default  
 };
 
+struct Preferences {
+    std::unordered_set<std::string> preferred_unit;
+    bool avoid_nights = false; // default
+};
 
+struct Availability {
+    // Date
+    bool can_work{};
+};
 
 struct Rules {
     // shorts to save some memory since doesnt exceed 32k
