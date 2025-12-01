@@ -5,6 +5,21 @@
 #include <unordered_map>
 
 
+
+struct Staff {
+    // Identifiers
+    std::string id;
+    std::string name;
+    std::string role;
+    std::unordered_set<std::string> skills;
+    // Filters
+    short max_weekly_hours = 40;
+    short max_consecutive_days = 5;
+    short min_rest = 12;
+    Preferences prefs;
+    std::vector<Availability> availability;
+};
+
 struct Rules {
     // shorts to save some memory since doesnt exceed 32k
     short max_hours_per_week_default = 40; // default weekly hour limit
