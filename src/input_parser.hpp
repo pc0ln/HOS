@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "model.hpp"
 
 struct Filters // Optional to add filter, selected is only_shown and none is all
 {
@@ -7,4 +8,4 @@ struct Filters // Optional to add filter, selected is only_shown and none is all
 };
 
 // Need to make Model.
-InputModel parse_input_json(const std::string& json_text, const Filters& opt = {});
+InputModel parse_input_json(const std::string& json_text, const Filters& opt = Filters{});
