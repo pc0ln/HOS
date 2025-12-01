@@ -11,11 +11,11 @@ using Hours = std::chrono::hours;
 
 // Helpers
 struct DateStamp {
-    short y{}, m{}, d{};
+    int y{}, m{}, d{};
 };
 
 struct DateTimeStamp {
-    short y{}, m{}, d{}, H{}, M{};
+    int y{}, m{}, d{}, H{}, M{};
 };
 
 inline bool operator==(const DateStamp& a, const DateStamp& b) {
@@ -51,7 +51,7 @@ inline SysTime to_time_point(const DateTimeStamp& dt) {
     tm.tm_min  = dt.M;
     tm.tm_sec  = 0;
     auto t = std::mktime(&tm); // local
-    Clock::from_time_t(t);
+    return Clock::from_time_t(t);
 }
 
 inline DateStamp to_date(const DateTimeStamp& dt) { 
@@ -60,6 +60,16 @@ inline DateStamp to_date(const DateTimeStamp& dt) {
 
 
 // Structs for engine
+struct Preferences {
+    std::unordered_set<std::string> preferred_unit;
+    bool avoid_nights = false; // default
+};
+
+struct Availability {
+    DateStamp date{};
+    bool can_work{};
+};
+
 struct Staff {
     // Identifiers
     std::string id;
@@ -80,7 +90,7 @@ struct Staff {
 struct Shifts {
     // Identifiers
     std::string id;
-    std::string name;
+    std::string name; // Unit
     std::string req_role;
     short required_count = 1; // default  
     SysTime start;
@@ -102,15 +112,6 @@ struct Shifts {
     }
 };
 
-struct Preferences {
-    std::unordered_set<std::string> preferred_unit;
-    bool avoid_nights = false; // default
-};
-
-struct Availability {
-    DateStamp date{};
-    bool can_work{};
-};
 
 struct Rules {
     // shorts to save some memory since doesnt exceed 32k
