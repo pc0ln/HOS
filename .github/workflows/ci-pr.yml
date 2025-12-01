@@ -1,11 +1,28 @@
-name: ci-pr
+name: ci
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test-ci:
+  build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - run: echo "Hello from pushed workflow."
-      - run: echo "Need to set-up makefile."
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install g++
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++
+
+      # - name: Build (make all)
+      #   run: make
+
+      - name: Run tests (make test)
+        run: make test
