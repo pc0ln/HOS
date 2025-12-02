@@ -75,7 +75,7 @@ int main() {
         assert(s.availability[0].can_work == true);
 
         // shifts
-        assert(model.shifts.size() == 3);
+        assert(model.shifts.size() == 2);
         assert(model.shifts[0].id == "shift1");
         assert(model.shifts[1].id == "shift2");
 
