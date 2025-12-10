@@ -3,7 +3,9 @@
 #include <optional>
 #include <sstream>
 
-// Helper: check availability by date
+// Helper Functions
+ 
+// Check availability by date
 static bool available_on(const Staff& s, const DateStamp& day) {
     if (s.availability.empty()) return true;
     for (const auto& a : s.availability) {
@@ -11,7 +13,7 @@ static bool available_on(const Staff& s, const DateStamp& day) {
             return a.can_work;
         }
     }
-    return true; // if no explicit entry, assume can work
+    return true; // Assume can work
 }
 
 struct WorkerState {
@@ -20,25 +22,25 @@ struct WorkerState {
     std::optional<SysTime> last_end{};
 };
 
-// Very naive rest check: require at least min_rest_hours between end and next start
+// Check at least min_rest_hours between end and next start
 static bool has_rest(const WorkerState& ws, const Staff& s, const Shifts& sh) {
     if (!ws.last_end) return true;
     auto rest = std::chrono::duration_cast<Hours>(sh.start - *ws.last_end);
     return rest.count() >= s.min_rest;
 }
 
-// Role must match exactly
+// Check role matches
 static bool role_ok(const Staff& s, const Shifts& sh) {
     return s.role == sh.req_role;
 }
 
-// Hours must not exceed max_hours_per_week
+// Check for hours
 static bool legal_hours_ok(const WorkerState& ws, const Staff& s, const Shifts& sh) {
     auto cap = Hours{s.max_weekly_hours};
     return (ws.assigned_hours + sh.duration()) <= cap;
 }
 
-// Preference penalty: lower is better
+// Calculate preference weight
 static int preference_penalty(const Staff& s, const Shifts& sh) {
     int p = 0;
     if (s.prefs.avoid_nights && sh.is_night()) p += 5;
@@ -49,13 +51,32 @@ static int preference_penalty(const Staff& s, const Shifts& sh) {
     return p;
 }
 
+// Build Schedule
 ScheduleResult build_schedule(const InputModel& input, const EngineOptions& opt) {
     ScheduleResult result;
 
-    // Copy shifts and sort by start time (earlier first)
-    std::vector<Shifts> shifts = input.shifts;
+    // Unique shift check (No duplicates)
+    std::unordered_map<std::string, Shifts> unique_by_id;
+    unique_by_id.reserve(input.shifts.size());
+
+    for (const auto& sh : input.shifts) {
+        auto it = unique_by_id.find(sh.id);
+        if (it == unique_by_id.end()) {
+            unique_by_id.emplace(sh.id, sh);
+        }
+    }
+
+    // Make a vector of unique shifts and sort by start time
+    std::vector<Shifts> shifts;
+    shifts.reserve(unique_by_id.size());
+    for (auto& kv : unique_by_id) {
+        shifts.push_back(std::move(kv.second));
+    }
+
     std::sort(shifts.begin(), shifts.end(),
-              [](const Shifts& a, const Shifts& b) { return a.start < b.start; });
+              [](const Shifts& a, const Shifts& b) {
+                  return a.start < b.start;
+              });
 
     // Create worker state (tracking hours + last shift end)
     std::vector<WorkerState> workers;
@@ -63,9 +84,12 @@ ScheduleResult build_schedule(const InputModel& input, const EngineOptions& opt)
     for (const auto& s : input.staff) {
         WorkerState ws;
         ws.staff = &s;
+        ws.assigned_hours = Hours{0};
+        ws.last_end.reset();
         workers.push_back(ws);
     }
 
+    // Scheduling loop (One assignment per unique shift)
     for (const auto& sh : shifts) {
         Assignment asg;
         asg.shift_id = sh.id;
@@ -91,19 +115,19 @@ ScheduleResult build_schedule(const InputModel& input, const EngineOptions& opt)
             continue;
         }
 
-        // Sort candidates: fairness (fewest hours) then preferences
+        // Sort candidates fairness (fewest hours) then preferences then ID
         std::sort(candidates.begin(), candidates.end(),
-            [&](const WorkerState* a, const WorkerState* b) {
-                if (opt.fairness_on && a->assigned_hours != b->assigned_hours) {
-                    return a->assigned_hours < b->assigned_hours;
-                }
-                if (opt.respect_preferences) {
-                    int pa = preference_penalty(*a->staff, sh);
-                    int pb = preference_penalty(*b->staff, sh);
-                    if (pa != pb) return pa < pb;
-                }
-                return a->staff->id < b->staff->id; // tie-breaker
-            });
+                  [&](const WorkerState* a, const WorkerState* b) {
+                      if (opt.fairness_on && a->assigned_hours != b->assigned_hours) {
+                          return a->assigned_hours < b->assigned_hours;
+                      }
+                      if (opt.respect_preferences) {
+                          int pa = preference_penalty(*a->staff, sh);
+                          int pb = preference_penalty(*b->staff, sh);
+                          if (pa != pb) return pa < pb;
+                      }
+                      return a->staff->id < b->staff->id;
+                  });
 
         int need = sh.required_count;
         for (auto* ws : candidates) {
