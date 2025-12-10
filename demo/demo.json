@@ -1,0 +1,126 @@
+{
+  "staff": [
+    {
+      "id": "nurse1",
+      "name": "Alice",
+      "role": "RN",
+      "skills": ["ICU"],
+      "max_weekly_hours": 36,
+      "min_rest": 12,
+      "prefs": {
+        "avoid_nights": true,
+        "preferred_units": ["ICU"]
+      },
+      "availability": [
+        { "date": "2025-04-01", "can_work": true },
+        { "date": "2025-04-02", "can_work": true }
+      ]
+    },
+    {
+      "id": "nurse2",
+      "name": "Bob",
+      "role": "RN",
+      "skills": ["ER", "ICU"],
+      "max_weekly_hours": 48,
+      "min_rest": 8,
+      "prefs": {
+        "avoid_nights": false,
+        "preferred_units": ["ER", "ICU"]
+      },
+      "availability": [
+        { "date": "2025-04-01", "can_work": true },
+        { "date": "2025-04-02", "can_work": true }
+      ]
+    },
+    {
+      "id": "surgeon1",
+      "name": "Dr. Chen",
+      "role": "SURGEON",
+      "skills": ["OR"],
+      "max_weekly_hours": 60,
+      "min_rest": 12,
+      "prefs": {
+        "avoid_nights": false,
+        "preferred_units": ["OR"]
+      },
+      "availability": [
+        { "date": "2025-04-01", "can_work": true },
+        { "date": "2025-04-02", "can_work": false }
+      ]
+    },
+    {
+      "id": "tech1",
+      "name": "Jamie",
+      "role": "TECH",
+      "skills": ["ER"],
+      "max_weekly_hours": 40,
+      "min_rest": 10,
+      "prefs": {
+        "avoid_nights": false,
+        "preferred_units": ["ER"]
+      },
+      "availability": [
+        { "date": "2025-04-01", "can_work": true }
+      ]
+    }
+  ],
+
+  "shifts": [
+    {
+      "id": "icu_day_1",
+      "name": "ICU",
+      "start": "2025-04-01T07:00",
+      "end": "2025-04-01T15:00",
+      "req_role": "RN",
+      "required_count": 2
+    },
+    {
+      "id": "er_tech_1",
+      "name": "ER",
+      "start": "2025-04-01T08:00",
+      "end": "2025-04-01T16:00",
+      "req_role": "TECH",
+      "required_count": 1
+    },
+    {
+      "id": "or_case_1",
+      "name": "OR",
+      "start": "2025-04-01T09:00",
+      "end": "2025-04-01T13:00",
+      "req_role": "SURGEON",
+      "required_count": 1
+    },
+    {
+      "id": "icu_night_1",
+      "name": "ICU",
+      "start": "2025-04-01T23:00",
+      "end": "2025-04-02T07:00",
+      "req_role": "RN",
+      "required_count": 1
+    },
+    {
+      "id": "er_day_1",
+      "name": "ER",
+      "start": "2025-04-02T09:00",
+      "end": "2025-04-02T17:00",
+      "req_role": "RN",
+      "required_count": 1
+    },
+    {
+      "id": "or_case_2",
+      "name": "OR",
+      "start": "2025-04-02T09:00",
+      "end": "2025-04-02T13:00",
+      "req_role": "SURGEON",
+      "required_count": 1
+    }
+  ],
+
+  "rules": {
+    "max_hours_per_week_default": 40,
+    "min_rest_hours_default": 8,
+    "max_consecutive_days_default": 5,
+    "hard_constraints": ["coverage", "legal_limits"],
+    "soft_constraints": ["preferences", "fairness"]
+  }
+}
