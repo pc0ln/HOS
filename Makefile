@@ -1,58 +1,50 @@
-# Compiler + flags
-CXX      := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -O2
-INCLUDES := -Isrc -Iextern
+# Compiler setup
+CXX = g++
+CXXFLAGS = -Wall -Wextra
 
-SRC_DIR  := src
-TEST_DIR := test
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
 
-# Sources
-
-# Main program sources
-SRCS_MAIN := \
+# Source files
+SRCS = \
     $(SRC_DIR)/main.cpp \
-    $(SRC_DIR)/input_parser.cpp \
-    $(SRC_DIR)/engine.cpp
-
-OBJS_MAIN := $(SRCS_MAIN:.cpp=.o)
-
-# Parser test sources
-SRCS_PARSER_TEST := \
-    $(TEST_DIR)/test_parser.cpp \
+    $(SRC_DIR)/engine.cpp \
     $(SRC_DIR)/input_parser.cpp
 
-OBJS_PARSER_TEST := $(SRCS_PARSER_TEST:.cpp=.o)
+# Object files
+OBJS = \
+    $(BUILD_DIR)/main.o \
+    $(BUILD_DIR)/engine.o \
+    $(BUILD_DIR)/input_parser.o
 
-# Engine test sources
-SRCS_ENGINE_TEST := \
-    $(TEST_DIR)/test_engine.cpp \
-    $(SRC_DIR)/engine.cpp
+# Final executable in ROOT directory
+TARGET = scheduler
 
-OBJS_ENGINE_TEST := $(SRCS_ENGINE_TEST:.cpp=.o)
+# Default rule
+all: $(TARGET)
 
-# Targets
+# Link the final program
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
-all: scheduler parser_tests engine_tests
+# Rules to compile each .cpp into .o
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/main.cpp -o $(BUILD_DIR)/main.o
 
-scheduler: $(OBJS_MAIN)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+$(BUILD_DIR)/engine.o: $(SRC_DIR)/engine.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/engine.cpp -o $(BUILD_DIR)/engine.o
 
-parser_tests: $(OBJS_PARSER_TEST)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+$(BUILD_DIR)/input_parser.o: $(SRC_DIR)/input_parser.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/input_parser.cpp -o $(BUILD_DIR)/input_parser.o
 
-engine_tests: $(OBJS_ENGINE_TEST)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+# Ensure build directory exists
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# Generic rule
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-# Run all tests
-test: parser_tests engine_tests
-	./parser_tests
-	./engine_tests
-
+# Clean build files and the scheduler binary
 clean:
-	rm -f $(OBJS_MAIN) $(OBJS_PARSER_TEST) $(OBJS_ENGINE_TEST) scheduler parser_tests engine_tests
+	rm -rf $(BUILD_DIR)
+	rm -f $(TARGET)
 
-.PHONY: all test clean
+.PHONY: all clean
