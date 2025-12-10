@@ -20,5 +20,4 @@ struct ScheduleResult {
 };
 
 // Build a schedule from parsed input model
-ScheduleResult build_schedule(const InputModel& model,
-                              const EngineOptions& opt = EngineOptions{});
+ScheduleResult build_schedule(const InputModel& model, const EngineOptions& opt = EngineOptions{});
